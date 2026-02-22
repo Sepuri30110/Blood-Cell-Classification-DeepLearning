@@ -1,0 +1,405 @@
+.auth * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+/* ================= CSS VARIABLES (Light Mode) ================= */
+/* 
+   Dark mode is automatically applied based on browser/OS preference.
+   To test: Change your system settings to dark mode or use browser DevTools 
+   to emulate prefers-color-scheme: dark 
+*/
+:root {
+    --bg-left: rgba(244, 248, 251, 0.85);
+    --bg-right: #f1f5f9;
+    --bg-card: white;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-error: red;
+    --border-color: rgba(0, 0, 0, 0.05);
+    --border-input: #ccc;
+    --border-toggle: #a05757;
+    --back-btn-bg: rgba(255, 255, 255, 0.4);
+    --card-shadow: rgba(0, 0, 0, 0.2);
+    --toggle-inactive-bg: #f1f5f9;
+    --toggle-inactive-text: #1e293b;
+    --gradient-start: #9333ea;
+    --gradient-end: #ec4899;
+    --accent-color: #ec4899;
+    --disabled-bg: #ccc;
+}
+
+/* ================= CSS VARIABLES (Dark Mode) ================= */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-left: rgba(15, 23, 42, 0.9);
+        --bg-right: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-error: #ef4444;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --border-input: #475569;
+        --border-toggle: #64748b;
+        --back-btn-bg: rgba(30, 41, 59, 0.8);
+        --card-shadow: rgba(0, 0, 0, 0.6);
+        --toggle-inactive-bg: #334155;
+        --toggle-inactive-text: #cbd5e1;
+        --gradient-start: #a855f7;
+        --gradient-end: #f472b6;
+        --accent-color: #f472b6;
+        --disabled-bg: #475569;
+    }
+}
+
+
+/* ================= MAIN LAYOUT ================= */
+
+.auth .auth-container {
+    display: flex;
+    height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* ================= LEFT 45% ================= */
+
+.auth .auth-left {
+
+    width: 45%;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 60px;
+
+    border-right: 1px solid var(--border-color);
+
+    transition: all 0.3s ease;
+}
+
+
+.auth .background-image {
+
+    background:
+        linear-gradient(var(--bg-left),
+            var(--bg-left)),
+        url("./about-background.png");
+
+    background-size: cover;
+    background-position: center;
+}
+
+
+.auth .back-home-btn {
+
+    position: absolute;
+
+    top: 30px;
+    left: 30px;
+
+    padding: 8px 16px;
+
+    border-radius: 30px;
+
+    background: var(--back-btn-bg);
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    color: var(--text-primary);
+
+    transition: all 0.3s ease;
+}
+
+.auth .back-home-btn:hover {
+    transform: translateX(-5px);
+    background: var(--accent-color);
+    color: white;
+}
+
+
+.auth .left-content {
+
+    max-width: 420px;
+}
+
+.auth .left-content h1 {
+
+    font-size: 49px;
+
+    margin-bottom: 20px;
+
+    color: var(--text-primary);
+}
+
+
+.auth .left-content p {
+
+    font-size: 18px;
+
+    color: var(--text-secondary);
+}
+
+
+
+/* ================= RIGHT 55% ================= */
+
+.auth .auth-right {
+
+    width: 55%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: var(--bg-right);
+
+    transition: background 0.3s ease;
+}
+
+
+
+/* ================= CARD ================= */
+
+.auth .auth-card {
+
+    width: 100%;
+
+    max-width: 380px;
+
+    background: var(--bg-card);
+
+    padding: 40px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 20px 40px var(--card-shadow);
+
+    text-align: center;
+
+    transition: all 0.3s ease;
+}
+
+
+.auth .auth-card h2 {
+
+    margin-bottom: 20px;
+
+    color: var(--text-primary);
+
+    transition: color 0.3s ease;
+}
+
+
+
+/* ================= TOGGLE ================= */
+
+.auth .toggle-container {
+
+    display: flex;
+
+    margin-bottom: 20px;
+
+    border-radius: 6px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border-toggle);
+}
+
+
+.auth .toggle-container button {
+
+    flex: 1;
+
+    padding: 10px;
+
+    border: none;
+
+    background: var(--toggle-inactive-bg);
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    color: var(--toggle-inactive-text);
+
+    transition: all 0.3s ease;
+}
+
+.auth .toggle-container button:hover {
+    opacity: 0.8;
+}
+
+
+.auth .toggle-container .active {
+
+    background:
+        linear-gradient(135deg,
+            var(--gradient-start),
+            var(--gradient-end));
+
+    color: white;
+}
+
+
+
+/* ================= INPUT ================= */
+
+.auth .auth-card input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 10px;
+
+    border-radius: 6px;
+
+    border: 1px solid var(--border-input);
+
+    background: var(--bg-card);
+
+    color: var(--text-primary);
+
+    transition: all 0.3s ease;
+}
+
+.auth .auth-card input:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+
+.auth .password-field {
+
+    position: relative;
+}
+
+
+.auth .show-btn {
+
+    position: absolute;
+
+    right: 12px;
+
+    top: 12px;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    color: var(--accent-color);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transition: color 0.2s ease;
+}
+
+.auth .show-btn:hover {
+    opacity: 0.7;
+}
+
+
+
+/* ================= ERROR ================= */
+
+.auth .error {
+
+    font-size: 12px;
+
+    color: var(--text-error);
+
+    text-align: left;
+
+    display: block;
+
+    margin-bottom: 8px;
+}
+
+/* ================= FORGOT ================= */
+
+.auth .forgot {
+
+    text-align: right;
+
+    font-size: 13px;
+
+    color: var(--accent-color);
+
+    cursor: pointer;
+
+    margin-bottom: 15px;
+}
+
+/* ================= BUTTON ================= */
+
+.auth .submit-btn {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border-radius: 6px;
+
+    border: none;
+
+    font-weight: 600;
+
+    background:
+        linear-gradient(135deg,
+            var(--gradient-start),
+            var(--gradient-end));
+
+    color: white;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+.auth .submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--card-shadow);
+}
+
+.auth .submit-btn:disabled {
+
+    background: var(--disabled-bg);
+
+    cursor: not-allowed;
+}
+
+/* ================= BOTTOM TEXT ================= */
+
+.auth .bottom-text {
+
+    margin-top: 15px;
+
+    font-size: 14px;
+
+    color: var(--text-secondary);
+}
+
+
+.auth .bottom-text span {
+
+    color: var(--accent-color);
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
