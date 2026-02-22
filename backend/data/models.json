@@ -1,0 +1,64 @@
+{
+  "models": [
+    {
+      "id": "resnet-50",
+      "name": "ResNet50",
+      "description": "Deep residual network for high-accuracy blood cell classification. Uses skip connections to enable training of very deep networks.",
+      "speed": "Fast",
+      "accuracy": "95.2%",
+      "precision": "94.8%",
+      "recall": "95.6%",
+      "f1Score": "95.2%"
+    },
+    {
+      "id": "densenet-121",
+      "name": "DenseNet121",
+      "description": "Dense connections between layers enable better feature reuse and gradient propagation. Efficient and accurate model.",
+      "speed": "Medium",
+      "accuracy": "93.8%",
+      "precision": "93.2%",
+      "recall": "94.1%",
+      "f1Score": "93.6%"
+    },
+    {
+      "id": "mobilenet-v2",
+      "name": "MobileNetV2",
+      "description": "Lightweight model optimized for mobile and edge devices. Balances accuracy with computational efficiency.",
+      "speed": "Very Fast",
+      "accuracy": "91.5%",
+      "precision": "90.8%",
+      "recall": "92.1%",
+      "f1Score": "91.4%"
+    },
+    {
+      "id": "vit-base",
+      "name": "ViT",
+      "description": "Transformer-based architecture applying self-attention mechanisms to image patches. Novel approach to image classification.",
+      "speed": "Medium",
+      "accuracy": "92.7%",
+      "precision": "92.3%",
+      "recall": "93.0%",
+      "f1Score": "92.6%"
+    },
+    {
+      "id": "yolo-v8",
+      "name": "YOLO v8",
+      "description": "State-of-the-art object detection model for identifying and localizing blood cells in microscopic images.",
+      "speed": "Very Fast",
+      "accuracy": "89.5%",
+      "precision": "88.9%",
+      "recall": "90.2%",
+      "f1Score": "89.5%"
+    },
+    {
+      "id": "cell-counter-v2",
+      "name": "Cell Counter v2",
+      "description": "Specialized model for accurate counting of white and red blood cells. Uses density estimation and segmentation techniques.",
+      "speed": "Fast",
+      "accuracy": "96.3%",
+      "precision": "96.1%",
+      "recall": "96.5%",
+      "f1Score": "96.3%"
+    }
+  ]
+}

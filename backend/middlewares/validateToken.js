@@ -72,6 +72,64 @@ const validateToken = async (req, res) => {
     }
 };
 
+/**
+ * Middleware to validate token and attach userId to request
+ * Used for protecting routes
+ */
+const validateTokenMiddleware = async (req, res, next) => {
+    try {
+        // Get token from cookie or Authorization header
+        const token = req.cookies.token || 
+                     (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Authentication required'
+            });
+        }
+
+        // Verify token
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Find user
+        const user = await User.findById(decoded.userId).select('-password');
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Attach userId and user to request
+        req.userId = decoded.userId;
+        req.user = user;
+
+        next();
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid token'
+            });
+        }
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token expired'
+            });
+        }
+        console.error('Token Validation Middleware Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
-    validateToken
-}
+    validateToken,
+    validateTokenMiddleware
+};

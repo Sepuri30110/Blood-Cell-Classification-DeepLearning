@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "seed": "node seed.js",
+    "clear": "node clearUploads.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

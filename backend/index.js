@@ -26,9 +26,17 @@ mongoose.connect(process.env.MONGO_URI)
 const {validateToken} = require('./middlewares/validateToken')
 
 const authRoutes = require('./routes/authRoutes')
+const uploadRoutes = require('./routes/uploadRoutes')
+const predictionRoutes = require('./routes/predictionRoutes')
+const historyRoutes = require('./routes/historyRoutes')
+const modelsRoutes = require('./routes/modelsRoutes')
 
 app.post('/api/validate-token', validateToken)
 app.use('/api/auth', authRoutes)
+app.use('/api/uploads', uploadRoutes)
+app.use('/api/predict', predictionRoutes)
+app.use('/api/history', historyRoutes)
+app.use('/api/models', modelsRoutes)
 
 app.listen(port, () => {
     console.log(`Server listening on port : ${port}`)
