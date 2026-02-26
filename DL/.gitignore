@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Model files (too large for git)
+models/*.h5
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.tflite
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Outputs
+*.jpg
+*.png
+*.jpeg
+detection_result.jpg
+count_result.jpg
+runs/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

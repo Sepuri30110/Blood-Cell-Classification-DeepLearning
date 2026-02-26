@@ -1,0 +1,19 @@
+# FastAPI and server
+fastapi
+uvicorn
+python-multipart
+
+# Deep Learning frameworks
+tensorflow>=2.15.0
+ultralytics
+
+# Image processing
+opencv-python
+Pillow
+
+# Data processing
+numpy
+pandas
+
+# Utilities
+python-dotenv
