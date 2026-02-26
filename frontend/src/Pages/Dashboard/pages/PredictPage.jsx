@@ -18,6 +18,9 @@ const PredictPage = ({ onUploadSuccess }) => {
     
     // Classification model selection
     const [classificationModel, setClassificationModel] = useState("MobileNet");
+    
+    // Show labels option for detection/count
+    const [showLabels, setShowLabels] = useState(true);
 
     // Load cached results on mount
     useEffect(() => {
@@ -84,6 +87,11 @@ const PredictPage = ({ onUploadSuccess }) => {
                 if (options.classification) {
                     requestData.classificationModel = classificationModel;
                 }
+                
+                // Add showLabels option if detection or count is selected
+                if (options.detection || options.count) {
+                    requestData.showLabels = showLabels;
+                }
 
                 const response = await predictImage(requestData);
                 
@@ -98,14 +106,14 @@ const PredictPage = ({ onUploadSuccess }) => {
                         onUploadSuccess();
                     }
                 } else {
-                    errorToast(response.message || "Prediction failed");
+                    errorToast(response.message || "Prediction failed. Please try again.");
                 }
                 setIsLoading(false);
             };
             reader.readAsDataURL(selectedFile);
         } catch (error) {
             console.error("Prediction error:", error);
-            errorToast("Failed to process prediction");
+            errorToast("Failed to process prediction. Please check your connection and try again.");
             setIsLoading(false);
         }
     };
@@ -120,6 +128,7 @@ const PredictPage = ({ onUploadSuccess }) => {
             count: false
         });
         setClassificationModel("MobileNet");
+        setShowLabels(true);
         clearCache(CACHE_KEYS.PREDICTION_RESULTS);
     };
 
@@ -170,7 +179,7 @@ const PredictPage = ({ onUploadSuccess }) => {
                                 {options.classification && (
                                     <div className="sub-options">
                                         <div className="sub-option-title">Select Model:</div>
-                                        {['ResNet', 'DenseNet', 'MobileNet', 'ViT'].map((model) => (
+                                        {['ResNet', 'DenseNet', 'MobileNet', 'EfficientNet', 'CNN', 'ViT'].map((model) => (
                                             <label key={model} className="sub-option-label">
                                                 <input
                                                     type="radio"
@@ -210,6 +219,20 @@ const PredictPage = ({ onUploadSuccess }) => {
                                 </label>
                             </div>
                         </div>
+                        
+                        {/* Show Labels Option (only visible when detection or count is selected) */}
+                        {(options.detection || options.count) && (
+                            <div className="advanced-options">
+                                <label className="option-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={showLabels}
+                                        onChange={() => setShowLabels(!showLabels)}
+                                    />
+                                    <span>Show cell type labels on bounding boxes</span>
+                                </label>
+                            </div>
+                        )}
 
                     <div className="button-group">
                         <button 

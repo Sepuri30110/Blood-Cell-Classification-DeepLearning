@@ -128,7 +128,18 @@ export const predictImage = async (data) => {
         return response.data;
     } catch (error) {
         console.error('Error predicting image:', error);
-        throw error;
+        
+        // Return structured error response
+        const errorMessage = error.response?.data?.message 
+            || error.response?.data?.error 
+            || error.message 
+            || 'Failed to process prediction';
+        
+        return {
+            success: false,
+            message: errorMessage,
+            error: true
+        };
     }
 };
 
