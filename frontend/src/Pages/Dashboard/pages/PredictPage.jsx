@@ -179,7 +179,7 @@ const PredictPage = ({ onUploadSuccess }) => {
                                 {options.classification && (
                                     <div className="sub-options">
                                         <div className="sub-option-title">Select Model:</div>
-                                        {['ResNet', 'DenseNet', 'MobileNet', 'EfficientNet', 'CNN', 'ViT'].map((model) => (
+                                        {['ResNet', 'DenseNet', 'MobileNet', 'ViT'].map((model) => (
                                             <label key={model} className="sub-option-label">
                                                 <input
                                                     type="radio"
