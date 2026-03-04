@@ -36,7 +36,7 @@ function base64ToBuffer(base64String) {
  */
 const predictImage = async (req, res) => {
     try {
-        const { image, options, classificationModel, fileName, fileSize, mimeType, showLabels = true } = req.body;
+        const { image, options, classificationModels, fileName, fileSize, mimeType, showLabels = true } = req.body;
         const userId = req.userId; // From auth middleware
         const startTime = Date.now();
 
@@ -54,35 +54,58 @@ const predictImage = async (req, res) => {
             });
         }
 
+        if (options.classification && (!classificationModels || classificationModels.length === 0)) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one classification model must be selected"
+            });
+        }
+
         const response = {};
         const imageBuffer = base64ToBuffer(image);
 
         try {
-            // Classification
+            // Classification - handle multiple models
             if (options.classification) {
-                const modelId = MODEL_MAPPING[classificationModel] || 'mobilenet-v2';
+                const classificationResults = [];
                 
-                const formData = new FormData();
-                formData.append('image', imageBuffer, { filename: 'image.jpg' });
-                formData.append('model_id', modelId);
+                // Make predictions for each selected model
+                for (const modelName of classificationModels) {
+                    const modelId = MODEL_MAPPING[modelName] || 'mobilenet-v2';
+                    
+                    try {
+                        const formData = new FormData();
+                        formData.append('image', imageBuffer, { filename: 'image.jpg' });
+                        formData.append('model_id', modelId);
 
-                const classificationResponse = await axios.post(
-                    `${DL_API_URL}/predict/classification`,
-                    formData,
-                    { headers: formData.getHeaders() }
-                );
+                        const classificationResponse = await axios.post(
+                            `${DL_API_URL}/predict/classification`,
+                            formData,
+                            { headers: formData.getHeaders() }
+                        );
 
-                if (classificationResponse.data.success) {
-                    const result = classificationResponse.data.result;
-                    response.classification = {
-                        cellType: result.predicted_class,
-                        confidence: (result.confidence * 100).toFixed(1),
-                        model: classificationModel || 'MobileNet',
-                        probabilities: result.probabilities
-                    };
-                } else {
-                    throw new Error('Classification failed');
+                        if (classificationResponse.data.success) {
+                            const result = classificationResponse.data.result;
+                            classificationResults.push({
+                                model: modelName,
+                                cellType: result.predicted_class,
+                                confidence: (result.confidence * 100).toFixed(1),
+                                probabilities: result.probabilities
+                            });
+                        }
+                    } catch (modelError) {
+                        console.error(`Error with model ${modelName}:`, modelError.message);
+                        // Add error result for this model but continue with others
+                        classificationResults.push({
+                            model: modelName,
+                            cellType: 'Error',
+                            confidence: '0.0',
+                            error: modelError.message
+                        });
+                    }
                 }
+                
+                response.classification = classificationResults;
             }
 
             // Detection
@@ -151,10 +174,17 @@ const predictImage = async (req, res) => {
 
         // Save to database if classification was performed
         let savedRecord = null;
-        if (options.classification && response.classification) {
+        if (options.classification && response.classification && response.classification.length > 0) {
             const processingTime = Date.now() - startTime;
             
             try {
+                // Find the result with highest confidence
+                const bestResult = response.classification.reduce((best, current) => {
+                    const currentConf = parseFloat(current.confidence);
+                    const bestConf = parseFloat(best.confidence);
+                    return currentConf > bestConf ? current : best;
+                });
+                
                 const newUpload = new Upload({
                     userId,
                     imageData: image,
@@ -162,9 +192,9 @@ const predictImage = async (req, res) => {
                     imageSize: fileSize,
                     imageMimeType: mimeType,
                     prediction: {
-                        cellType: response.classification.cellType,
-                        confidence: parseFloat(response.classification.confidence),
-                        modelUsed: response.classification.model
+                        cellType: bestResult.cellType,
+                        confidence: parseFloat(bestResult.confidence),
+                        modelUsed: bestResult.model
                     },
                     processingTime,
                     status: 'completed'
@@ -212,6 +242,8 @@ const getAvailableModels = async (req, res) => {
                     'resnet-50': 'ResNet',
                     'densenet-121': 'DenseNet',
                     'mobilenet-v2': 'MobileNet',
+                    'efficientnet-b0': 'EfficientNet',
+                    'cnn': 'CNN',
                     'vit-base': 'ViT'
                 };
                 
@@ -243,6 +275,8 @@ const getAvailableModels = async (req, res) => {
                 { name: 'ResNet', status: 'inactive' },
                 { name: 'DenseNet', status: 'inactive' },
                 { name: 'MobileNet', status: 'inactive', recommended: true },
+                { name: 'EfficientNet', status: 'inactive' },
+                { name: 'CNN', status: 'inactive' },
                 { name: 'ViT', status: 'inactive' }
             ],
             detection: { name: 'YOLO v8', status: 'inactive' },

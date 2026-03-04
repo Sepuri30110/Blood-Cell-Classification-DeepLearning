@@ -16,8 +16,8 @@ const PredictPage = ({ onUploadSuccess }) => {
         count: false
     });
     
-    // Classification model selection
-    const [classificationModel, setClassificationModel] = useState("MobileNet");
+    // Classification model selection (multiple models)
+    const [classificationModels, setClassificationModels] = useState([]);
     
     // Show labels option for detection/count
     const [showLabels, setShowLabels] = useState(true);
@@ -53,6 +53,16 @@ const PredictPage = ({ onUploadSuccess }) => {
         }));
     };
 
+    const handleModelToggle = (model) => {
+        setClassificationModels(prev => {
+            if (prev.includes(model)) {
+                return prev.filter(m => m !== model);
+            } else {
+                return [...prev, model];
+            }
+        });
+    };
+
     const handlePredict = async () => {
         if (!selectedFile) {
             errorToast("Please select an image first");
@@ -61,6 +71,11 @@ const PredictPage = ({ onUploadSuccess }) => {
 
         if (!options.classification && !options.detection && !options.count) {
             errorToast("Please select at least one option");
+            return;
+        }
+
+        if (options.classification && classificationModels.length === 0) {
+            errorToast("Please select at least one classification model");
             return;
         }
 
@@ -83,9 +98,9 @@ const PredictPage = ({ onUploadSuccess }) => {
                     }
                 };
 
-                // Add classification model if classification is selected
+                // Add classification models if classification is selected
                 if (options.classification) {
-                    requestData.classificationModel = classificationModel;
+                    requestData.classificationModels = classificationModels;
                 }
                 
                 // Add showLabels option if detection or count is selected
@@ -127,7 +142,7 @@ const PredictPage = ({ onUploadSuccess }) => {
             detection: false,
             count: false
         });
-        setClassificationModel("MobileNet");
+        setClassificationModels([]);
         setShowLabels(true);
         clearCache(CACHE_KEYS.PREDICTION_RESULTS);
     };
@@ -178,15 +193,14 @@ const PredictPage = ({ onUploadSuccess }) => {
                                 
                                 {options.classification && (
                                     <div className="sub-options">
-                                        <div className="sub-option-title">Select Model:</div>
+                                        <div className="sub-option-title">Select Models (one or more):</div>
+                                        {/* {['ResNet', 'DenseNet', 'MobileNet', 'EfficientNet', 'CNN', 'ViT'].map((model) => ( */}
                                         {['ResNet', 'DenseNet', 'MobileNet', 'ViT'].map((model) => (
                                             <label key={model} className="sub-option-label">
                                                 <input
-                                                    type="radio"
-                                                    name="classificationModel"
-                                                    value={model}
-                                                    checked={classificationModel === model}
-                                                    onChange={(e) => setClassificationModel(e.target.value)}
+                                                    type="checkbox"
+                                                    checked={classificationModels.includes(model)}
+                                                    onChange={() => handleModelToggle(model)}
                                                 />
                                                 <span>{model} {model === 'MobileNet' && <span className="recommended-badge">Recommended</span>}</span>
                                             </label>
@@ -259,27 +273,29 @@ const PredictPage = ({ onUploadSuccess }) => {
                             <div className="section-title">Results</div>
                             
                             {/* Classification Results */}
-                            {results.classification && (
+                            {results.classification && results.classification.length > 0 && (
                                 <div className="result-section">
-                                    <h3 className="result-section-title">Classification</h3>
+                                    <h3 className="result-section-title">Classification Results</h3>
                                     <table className="results-table">
                                         <thead>
                                             <tr>
+                                                <th>Model</th>
                                                 <th>Cell Type</th>
                                                 <th>Confidence</th>
-                                                <th>Model</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>
-                                                    <span className="cell-type-badge">
-                                                        {results.classification.cellType}
-                                                    </span>
-                                                </td>
-                                                <td>{results.classification.confidence}%</td>
-                                                <td>{results.classification.model}</td>
-                                            </tr>
+                                            {results.classification.map((result, index) => (
+                                                <tr key={index}>
+                                                    <td><strong>{result.model}</strong></td>
+                                                    <td>
+                                                        <span className="cell-type-badge">
+                                                            {result.cellType}
+                                                        </span>
+                                                    </td>
+                                                    <td>{result.confidence}%</td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
                                 </div>

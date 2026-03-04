@@ -88,14 +88,29 @@ class BloodCellPredictor:
         
         log(f"Model outputs {num_classes} classes")
         log(f"Predicted class index: {pred_class_index}")
+        log(f"Expected classes: {len(self.model_loader.classification_classes)}")
+        
+        # Handle models with different number of output classes
+        if num_classes != len(self.model_loader.classification_classes):
+            log(f"WARNING: Model output size ({num_classes}) doesn't match expected classes ({len(self.model_loader.classification_classes)})")
+            
+            # If model has more classes, only use the first N that match our class list
+            if pred_class_index >= len(self.model_loader.classification_classes):
+                log(f"ERROR: Predicted index {pred_class_index} is out of bounds for {len(self.model_loader.classification_classes)} classes")
+                # Use the class with highest probability within valid range
+                valid_predictions = predictions[0][:len(self.model_loader.classification_classes)]
+                pred_class_index = np.argmax(valid_predictions)
+                log(f"Adjusted predicted class index to: {pred_class_index}")
         
         pred_class_name = self.model_loader.classification_classes[pred_class_index]
         confidence = float(predictions[0][pred_class_index])
         log(f"Predicted: {pred_class_name} with confidence: {confidence:.4f}")
         
-        # Get all probabilities
+        # Get all probabilities (only for classes we know about)
         probabilities = {}
-        for i, class_name in enumerate(self.model_loader.classification_classes):
+        num_valid_classes = min(num_classes, len(self.model_loader.classification_classes))
+        for i in range(num_valid_classes):
+            class_name = self.model_loader.classification_classes[i]
             probabilities[class_name] = float(predictions[0][i])
             log(f"Probability[{class_name}] = {predictions[0][i]:.4f}")
         
