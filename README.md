@@ -39,7 +39,9 @@ This project demonstrates production-ready AI deployment using microservice arch
 🔐 **Secure Authentication** - JWT-based user authentication and authorization  
 📝 **Request Logging** - Unique log files for each prediction request  
 ⚡ **Microservice Architecture** - Separate frontend, backend, and DL services  
-🎨 **Modern UI/UX** - React-based responsive interface with toast notifications
+🎨 **Modern UI/UX** - React-based responsive interface with toast notifications  
+🚀 **Automated Setup** - One-command installation and startup scripts  
+🐍 **Virtual Environment** - Isolated Python environment for dependency management
 
 ------------------------------------------------------------------------
 
@@ -137,6 +139,40 @@ This architecture follows a clean microservice-based design, separating applicat
 -   **Preprocessing Pipeline**: Automatic image preprocessing for classification models
 -   **Custom Keras Layers**: Support for Vision Transformer custom layers (Patches, PatchEncoder)
 -   **Legacy Keras Compatibility**: TF_USE_LEGACY_KERAS=1 for backward compatibility
+-   **Automated Setup Scripts**: `setup.py` for dependency installation, `startup.py` for launching services
+-   **Virtual Environment**: Isolated Python environment for DL service to prevent conflicts
+
+------------------------------------------------------------------------
+
+## 🚀 Automation Scripts
+
+### setup.py - Dependency Installation
+Automatically installs all dependencies for the project:
+- Runs `npm install` in frontend directory
+- Runs `npm install` in backend directory
+- Creates Python virtual environment in DL directory
+- Installs Python packages from `requirements.txt` in the virtual environment
+- Provides detailed progress and error reporting
+
+**Usage:**
+```bash
+python setup.py
+```
+
+### startup.py - Service Launcher
+Starts frontend and backend services concurrently:
+- Launches frontend (React/Vite) on port 9000
+- Launches backend (Node.js/Express) on port 9001
+- Displays labeled output from all services
+- Gracefully handles Ctrl+C to stop all services
+- Cross-platform support (Windows, Linux, Mac)
+
+**Usage:**
+```bash
+python startup.py
+```
+
+**Note**: Press `Ctrl+C` to stop all running services gracefully.
 
 ------------------------------------------------------------------------
 
@@ -180,6 +216,8 @@ Blood-Cell-Classification-DeepLearning/
 │   ├── logs/                   # Per-request log files
 │   └── requirements.txt        # Python dependencies
 │
+├── setup.py                     # Automated dependency installation script
+├── startup.py                   # Automated service startup script
 ├── .gitignore
 └── README.md
 ```
@@ -245,70 +283,92 @@ cd Blood-Cell-Classification-DeepLearning
 
 ------------------------------------------------------------------------
 
-### 2️⃣ Start Deep Learning Service (Port 8000)
+### 2️⃣ Configure Environment Variables
+
+**Backend (.env)**
+Create `backend/.env` file:
+```env
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+DL_API_URL=http://localhost:8000
+PORT=9001
+```
+
+**Frontend (.env)**
+Create `frontend/.env` file:
+```env
+VITE_SERVER_URL=http://localhost
+VITE_PORT=9001
+VITE_ENDPOINT=api
+```
+
+------------------------------------------------------------------------
+
+### 3️⃣ Quick Start (Automated Setup)
+
+**Option A: Using Automated Scripts (Recommended)**
 
 ```bash
-cd DL
+# Step 1: Install all dependencies (first time only)
+python setup.py
 
-# Install Python dependencies
-pip install -r requirements.txt
+# Step 2: Start all services (Frontend + Backend)
+python startup.py
+```
 
-# Set environment variable for legacy Keras compatibility
-# On Windows PowerShell:
+That's it! The scripts will automatically:
+- ✅ Install npm packages for frontend and backend
+- ✅ Create Python virtual environment for DL service
+- ✅ Install Python dependencies in the virtual environment
+- ✅ Start frontend (Port 9000) and backend (Port 9001) concurrently
+- ✅ Display output from all services with labeled prefixes
+
+**Note**: The DL service (Port 8000) must be started separately if needed:
+```bash
+# Activate virtual environment
+# Windows:
+& "DL\.venv\Scripts\Activate.ps1"
+# Linux/Mac:
+source DL/.venv/bin/activate
+
+# Set environment variable for legacy Keras
+# Windows PowerShell:
 $env:TF_USE_LEGACY_KERAS='1'
-# On Linux/Mac:
+# Linux/Mac:
 export TF_USE_LEGACY_KERAS=1
 
-# Start FastAPI server
+# Start DL service
+cd DL
 python main.py
-# Or use uvicorn directly:
-# uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
-
-**DL Service will run on**: `http://localhost:8000`
 
 ------------------------------------------------------------------------
 
-### 3️⃣ Start Backend (Port 9001)
+### 4️⃣ Manual Setup (Alternative Method)
 
-```bash
-cd backend
-
-# Install Node dependencies
-npm install
-
-# Create .env file with:
-# MONGODB_URI=your_mongodb_connection_string
-# JWT_SECRET=your_secret_key
-# DL_API_URL=http://localhost:8000
-# PORT=9001
-
-# Start Express server
-npm start
-```
-
-**Backend will run on**: `http://localhost:9001`
-
-------------------------------------------------------------------------
-
-### 4️⃣ Start Frontend (Port 9000)
-
+**Frontend (Port 9000)**
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Create .env file with:
-# VITE_SERVER_URL=http://localhost
-# VITE_PORT=9001
-# VITE_ENDPOINT=api
-
-# Start Vite dev server
 npm run dev
 ```
 
-**Frontend will run on**: `http://localhost:9000`
+**Backend (Port 9001)**
+```bash
+cd backend
+npm install
+npm start
+```
+
+**DL Service (Port 8000) - Optional**
+```bash
+cd DL
+python -m venv .venv
+# Activate venv (see above)
+pip install -r requirements.txt
+$env:TF_USE_LEGACY_KERAS='1'  # Windows
+python main.py
+```
 
 ------------------------------------------------------------------------
 
@@ -423,20 +483,22 @@ Enable detailed logging:
 
 ## 🎨 Key Features Implemented
 
-✅ **Multi-Model Classification** - 6 different architectures (ResNet, DenseNet, MobileNet, EfficientNet, CNN, ViT)
-✅ **Object Detection** - YOLOv8 for cell detection with bounding boxes
-✅ **Cell Counting** - Accurate WBC and RBC counting
-✅ **Preprocessing Pipeline** - Automatic image preprocessing for classification
-✅ **Custom Keras Layers** - Support for Vision Transformer custom layers
-✅ **Label Visibility Control** - Toggle labels on detection results
-✅ **Unique Request Logging** - Individual log files per prediction request
-✅ **Error Handling** - Comprehensive error messages with toast notifications
-✅ **Result Caching** - Frontend caching for improved performance
-✅ **JWT Authentication** - Secure user authentication and authorization
-✅ **Prediction History** - Track and view all past predictions
-✅ **Dashboard Analytics** - Real-time statistics and visualizations
-✅ **Responsive UI** - Clean, modern interface with React
-✅ **Legacy Keras Compatibility** - Support for older TensorFlow models
+✅ **Multi-Model Classification** - 6 different architectures (ResNet, DenseNet, MobileNet, EfficientNet, CNN, ViT)  
+✅ **Object Detection** - YOLOv8 for cell detection with bounding boxes  
+✅ **Cell Counting** - Accurate WBC and RBC counting  
+✅ **Preprocessing Pipeline** - Automatic image preprocessing for classification  
+✅ **Custom Keras Layers** - Support for Vision Transformer custom layers  
+✅ **Label Visibility Control** - Toggle labels on detection results  
+✅ **Unique Request Logging** - Individual log files per prediction request  
+✅ **Error Handling** - Comprehensive error messages with toast notifications  
+✅ **Result Caching** - Frontend caching for improved performance  
+✅ **JWT Authentication** - Secure user authentication and authorization  
+✅ **Prediction History** - Track and view all past predictions  
+✅ **Dashboard Analytics** - Real-time statistics and visualizations  
+✅ **Responsive UI** - Clean, modern interface with React  
+✅ **Legacy Keras Compatibility** - Support for older TensorFlow models  
+✅ **Automated Setup Scripts** - `setup.py` and `startup.py` for quick deployment  
+✅ **Virtual Environment Management** - Isolated Python dependencies with auto-creation
 
 ------------------------------------------------------------------------
 
